@@ -46,7 +46,6 @@ import static de.embl.cba.transforms.utils.Scalings.createRescaledArrayImg;
 import static de.embl.cba.transforms.utils.Transforms.getScalingFactors;
 import static java.lang.Math.toRadians;
 
-
 public class FlyEmbryoTwoChannelRegistration< T extends RealType< T > & NativeType< T > >
 {
 	final FlyEmbryoRegistrationSettings settings;
