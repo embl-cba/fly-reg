@@ -39,7 +39,6 @@ public class TestFlyEmbryoRegistration< T extends RealType< T > & NativeType< T 
 		final ImagePlus imagePlus = Utils.openWithBioFormats( filePath );
 		final double[] calibration = Utils.getCalibration( imagePlus );
 		RandomAccessibleInterval< T > images = Utils.getChannelImages( imagePlus );
-
 		RandomAccessibleInterval< T > image = Utils.getChannelImage( images, 0  );
 
 		final FlyEmbryoRegistrationSettings settings = new FlyEmbryoRegistrationSettings();

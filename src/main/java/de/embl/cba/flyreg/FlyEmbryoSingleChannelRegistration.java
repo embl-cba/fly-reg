@@ -9,6 +9,7 @@ import de.embl.cba.morphometry.geometry.ellipsoids.EllipsoidMLJ;
 import de.embl.cba.morphometry.geometry.ellipsoids.EllipsoidsMLJ;
 import de.embl.cba.morphometry.regions.Regions;
 import de.embl.cba.transforms.utils.Transforms;
+import ij.ImagePlus;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -66,18 +67,26 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 		this.opService = opService;
 	}
 
-	public boolean run( RandomAccessibleInterval< T > image, double[] inputCalibration )
+	public boolean run( ImagePlus imagePlus, int channelIndexZeroBased )
+	{
+		final double[] calibration = Utils.getCalibration( imagePlus );
+		RandomAccessibleInterval< T > images = Utils.getChannelImages( imagePlus );
+		RandomAccessibleInterval< T > image = Utils.getChannelImage( images, channelIndexZeroBased  );
+		return run( image, calibration);
+	}
+
+	public boolean run( RandomAccessibleInterval< T > rai, double[] inputCalibration )
 	{
 		this.inputCalibration = inputCalibration;
 
 		if ( settings.showIntermediateResults )
-			show( image, "input image", null, inputCalibration, false );
+			show( rai, "input image", null, inputCalibration, false );
 
 		registration = new AffineTransform3D();
 
-		refractiveIndexScalingCorrection( image, inputCalibration );
+		refractiveIndexScalingCorrection( rai, inputCalibration );
 
-		createIsotropicImage( image );
+		createIsotropicImage( rai );
 
 		refractiveIndexIntensityCorrection();
 
