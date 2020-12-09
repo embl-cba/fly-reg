@@ -19,14 +19,14 @@ public class TestFlyEmbryoRegistration< T extends RealType< T > & NativeType< T 
 	@Test
 	public void test0()
 	{
-		runRegistrationTest( "src/test-data/low_res_x60_y55_z41_yaw-22.zip", new double[]{ 60.0, 55.0, 41.0 }, -22 );
+		runRegistrationTest( "src/test/resources/test-data/low_res_x60_y55_z41_yaw-22.zip", new double[]{ 60.0, 55.0, 41.0 }, -22 );
 
 	}
 
 	@Test
 	public void test1()
 	{
-		runRegistrationTest( "src/test-data/low_res_x58_y69_z38_yaw-54.zip", new double[]{ 58.0, 69.0, 38.0 }, -54 );
+		runRegistrationTest( "src/test/resources/test-data/low_res_x58_y69_z38_yaw-54.zip", new double[]{ 58.0, 69.0, 38.0 }, -54 );
 	}
 
 	public void runRegistrationTest( String filePath, double[] actualCentre, int actualAngle )
@@ -42,13 +42,11 @@ public class TestFlyEmbryoRegistration< T extends RealType< T > & NativeType< T 
 
 		RandomAccessibleInterval< T > image = Utils.getChannelImage( images, 0  );
 
-		final FlyEmbryoRegistrationSettings settings =
-				new FlyEmbryoRegistrationSettings();
+		final FlyEmbryoRegistrationSettings settings = new FlyEmbryoRegistrationSettings();
 
 		settings.onlyComputeEllipsoidParameters = true;
 
-		final FlyEmbryoSingleChannelRegistration registration =
-				new FlyEmbryoSingleChannelRegistration( settings, opService );
+		final FlyEmbryoSingleChannelRegistration registration = new FlyEmbryoSingleChannelRegistration( settings, opService );
 
 		registration.run( image, calibration );
 

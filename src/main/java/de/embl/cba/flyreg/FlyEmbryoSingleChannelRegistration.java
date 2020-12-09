@@ -31,7 +31,6 @@ import net.imglib2.util.Intervals;
 import java.util.List;
 import java.util.Set;
 
-import de.embl.cba.abberation.RefractiveIndexMismatchCorrections;
 import static de.embl.cba.morphometry.Constants.X;
 import static de.embl.cba.morphometry.Constants.Z;
 import static de.embl.cba.morphometry.viewing.BdvViewer.show;
@@ -61,9 +60,7 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 	private EllipsoidMLJ ellipsoidParameters;
 	private double[] inputCalibration;
 
-	public FlyEmbryoSingleChannelRegistration(
-			final FlyEmbryoRegistrationSettings settings,
-			final OpService opService )
+	public FlyEmbryoSingleChannelRegistration( final FlyEmbryoRegistrationSettings settings, final OpService opService )
 	{
 		this.settings = settings;
 		this.opService = opService;
@@ -99,7 +96,6 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 		transformAtRegistrationResolution = registration;
 
 		return true;
-
 	}
 
 	public double[] getElliposidEulerAnglesInDegrees()
@@ -117,6 +113,64 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 		center[ 2 ] /= settings.refractiveIndexAxialCalibrationCorrectionFactor;
 
 		return center;
+	}
+
+	public double[] getCorrectedCalibration()
+	{
+		return correctedCalibration;
+	}
+
+	public double getCoverslipPosition()
+	{
+		return coverslipPosition;
+	}
+
+	public Img< IntType > getWatershedLabelImg()
+	{
+		return watershedLabelImg;
+	}
+
+	public AffineTransform3D getRegistrationTransform( double[] inputCalibration, double outputResolution )
+	{
+		final AffineTransform3D transform =
+				Transforms.getScalingTransform( inputCalibration, settings.registrationResolution )
+						.preConcatenate( transformAtRegistrationResolution.copy() )
+						.preConcatenate( Transforms.getScalingTransform( settings.registrationResolution, outputResolution ) );
+
+		return transform;
+	}
+
+	public RandomAccessibleInterval< BitType > getAlignedMask( double resolution, FinalInterval interval )
+	{
+		/**
+		 * - TODO: using the mask just like this was cutting away signal from embryo..
+		 * 		   the issue might be that during the rotations the voxels do not end up
+		 * 		   precisely where they should be? Currently, I simple dilate "a bit".
+		 * 		   Feels kind of messy...better way?
+		 */
+
+		Logger.log( "Creating aligned mask..." );
+
+		final RandomAccessibleInterval< BitType > dilatedMask = Algorithms.dilate( embryoMask, 2 );
+
+		AffineTransform3D transform = transformAtRegistrationResolution.copy()
+				.preConcatenate( Transforms.getScalingTransform( settings.registrationResolution, resolution ) );
+
+		RandomAccessibleInterval< BitType > alignedMask =
+				Utils.copyAsArrayImg(
+						Transforms.createTransformedView(
+								dilatedMask,
+								transform,
+								interval, // after the transform we need to specify where we want to "crop"
+								new NearestNeighborInterpolatorFactory() // binary image => do not interpolate linearly!
+						)
+				);
+
+		if ( settings.showIntermediateResults )
+			show( alignedMask, "aligned mask at output resolution",
+					Transforms.origin(), resolution );
+
+		return alignedMask;
 	}
 
 
@@ -404,10 +458,8 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 			show( isotropic, "isotropic sampled at registration resolution", null, registrationCalibration, false );
 	}
 
-
 	private < T extends RealType< T > & NativeType< T > >
-	void refractiveIndexScalingCorrection(
-			RandomAccessibleInterval< T > image, double[] inputCalibration )
+	void refractiveIndexScalingCorrection( RandomAccessibleInterval< T > image, double[] inputCalibration )
 	{
 		/**
 		 *  Axial calibration correction due to refractive index mismatch
@@ -453,70 +505,7 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 		return watershedLabeling;
 	}
 
-
-	public double[] getCorrectedCalibration()
-	{
-		return correctedCalibration;
-	}
-
-	public double getCoverslipPosition()
-	{
-		return coverslipPosition;
-	}
-
-	public Img< IntType > getWatershedLabelImg()
-	{
-		return watershedLabelImg;
-	}
-
-	public AffineTransform3D getRegistrationTransform( double[] inputCalibration, double outputResolution )
-	{
-		final AffineTransform3D transform =
-				Transforms.getScalingTransform( inputCalibration, settings.registrationResolution )
-						.preConcatenate( transformAtRegistrationResolution.copy() )
-						.preConcatenate( Transforms.getScalingTransform( settings.registrationResolution, outputResolution ) );
-
-		return transform;
-	}
-
-	public RandomAccessibleInterval< BitType >
-	getAlignedMask( double resolution, FinalInterval interval )
-	{
-
-		/**
-		 * - TODO: using the mask just like this was cutting away signal from embryo..
-		 * 		   the issue might be that during the rotations the voxels do not end up
-		 * 		   precisely where they should be? Currently, I simple dilate "a bit".
-		 * 		   Feels kind of messy...better way?
-		 */
-
-		Logger.log( "Creating aligned mask..." );
-
-		final RandomAccessibleInterval< BitType > dilatedMask = Algorithms.dilate( embryoMask, 2 );
-
-		AffineTransform3D transform = transformAtRegistrationResolution.copy()
-				.preConcatenate( Transforms.getScalingTransform( settings.registrationResolution, resolution ) );
-
-		RandomAccessibleInterval< BitType > alignedMask =
-				Utils.copyAsArrayImg(
-					Transforms.createTransformedView(
-							dilatedMask,
-							transform,
-							interval, // after the transform we need to specify where we want to "crop"
-							new NearestNeighborInterpolatorFactory() // binary image => do not interpolate linearly!
-					)
-				);
-
-		if ( settings.showIntermediateResults )
-			show( alignedMask, "aligned mask at output resolution",
-					Transforms.origin(), resolution );
-
-		return alignedMask;
-	}
-
-	private  < T extends RealType< T > & NativeType< T > >
-	AffineTransform3D computeIntensityBasedRollTransform(
-			RandomAccessibleInterval< T > image )
+	private  < T extends RealType< T > & NativeType< T > > AffineTransform3D computeIntensityBasedRollTransform( RandomAccessibleInterval< T > image )
 	{
 		Logger.log( "Computing intensity based roll transform" );
 
@@ -530,8 +519,7 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 		return intensityBasedRollTransform;
 	}
 
-	private ImgLabeling< Integer, IntType > createWatershedSeeds(
-			RandomAccessibleInterval< DoubleType > distance )
+	private ImgLabeling< Integer, IntType > createWatershedSeeds( RandomAccessibleInterval< DoubleType > distance )
 	{
 		Logger.log( "Seeds for watershed...");
 
@@ -640,7 +628,6 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 		return xAxisRollTransform;
 	}
 
-
 	private static
 	AffineTransform3D createXAxisRollTransform( RealPoint maximum2DinYZPlane )
 	{
@@ -652,6 +639,4 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 
 		return rollTransform;
 	}
-
-
 }
