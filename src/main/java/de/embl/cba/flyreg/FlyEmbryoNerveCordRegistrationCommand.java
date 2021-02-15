@@ -9,6 +9,7 @@ import de.embl.cba.transforms.utils.Transforms;
 import ij.ImagePlus;
 import ij.io.FileSaver;
 import net.imagej.DatasetService;
+import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -30,8 +31,8 @@ import java.util.ArrayList;
 import static de.embl.cba.morphometry.Constants.Z;
 import static de.embl.cba.morphometry.Utils.openWithBioFormats;
 
-@Plugin(type = Command.class, menuPath = "Plugins>Registration>Fly>Embryo Single Channel Registration..." )
-public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > & NativeType< T > > implements Command
+@Plugin(type = Command.class, menuPath = "Plugins>Registration>Fly>Embryo Nerve Cord Registration..." )
+public class FlyEmbryoNerveCordRegistrationCommand< T extends RealType< T > & NativeType< T > > implements Command
 {
 	FlyEmbryoRegistrationSettings settings = new FlyEmbryoRegistrationSettings();
 
@@ -50,16 +51,8 @@ public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > 
 	@Parameter
 	public StatusService statusService;
 
-	@Parameter( required = false )
-	public ImagePlus imagePlus;
-
-	public static final String FROM_DIRECTORY = "From directory";
-	public static final String CURRENT_IMAGE = "Current image";
-	@Parameter( choices = { FROM_DIRECTORY, CURRENT_IMAGE })
-	public String inputModality = FROM_DIRECTORY;
-
-	@Parameter( style = "directory" )
-	public File inputDirectory;
+	@Parameter( label = "Images to be registered")
+	public File[] files;
 
 	@Parameter( style = "directory" )
 	public File outputDirectory;
@@ -70,20 +63,8 @@ public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > 
 	@Parameter
 	public boolean showIntermediateResults = settings.showIntermediateResults;
 
-//	@Parameter( choices = { DrosophilaRegistrationSettings.MOMENTS })
-	public String longAxisAngleAlignmentMethod = FlyEmbryoRegistrationSettings.MOMENTS;
-
-//	@Parameter( choices = { DrosophilaRegistrationSettings.INTENSITY })
-	public String longAxisFlippingAlignmentMethod = FlyEmbryoRegistrationSettings.INTENSITY;
-
-//	@Parameter( choices = { DrosophilaRegistrationSettings.INTENSITY })
-	public String rollAngleAlignmentMethod = FlyEmbryoRegistrationSettings.INTENSITY;
-
-	@Parameter
+	@Parameter ( label = "Nerve cord channel index (one-based)")
 	public int alignmentChannelIndexOneBased = settings.alignmentChannelIndexOneBased;
-
-//	@Parameter
-//	public int secondaryChannelIndexOneBased = settings.secondaryChannelIndexOneBased;
 
 	@Parameter
 	public double registrationResolution = settings.registrationResolution;
@@ -94,6 +75,7 @@ public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > 
 	@Parameter
 	public double refractiveIndexIntensityCorrectionDecayLength = settings.refractiveIndexIntensityCorrectionDecayLength;
 
+	public String rollAngleAlignmentMethod = FlyEmbryoRegistrationSettings.INTENSITY;
 
 	public void run()
 	{
@@ -101,59 +83,47 @@ public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > 
 
 		final FlyEmbryoSingleChannelRegistration registration = new FlyEmbryoSingleChannelRegistration( settings, opService );
 
-		if ( inputModality.equals( CURRENT_IMAGE ) && imagePlus != null )
+		for( File file : files )
 		{
-//			RandomAccessibleInterval< T > transformed = createAlignedImages( imagePlus, registration );
-//			showWithBdv( transformed, "registered" );
-//			ImageJFunctions.show( Views.permute( transformed, 2, 3 ) );
-		}
-
-		// TODO: move the batching out of this and use generic batching?
-		if ( inputModality.equals( FROM_DIRECTORY ) )
-		{
-			String[] files = inputDirectory.list();
-
-			for( String file : files )
+			if ( acceptFile( fileNameEndsWith, file.toString() ) )
 			{
-				if ( acceptFile( fileNameEndsWith, file ) )
+				final String outputFilePathStump = outputDirectory + File.separator + file.getName();
+
+				Utils.setNewLogFilePath( outputFilePathStump + ".log.txt" );
+
+				/**
+				 * Open images
+				 */
+
+				final String inputPath = file.getAbsolutePath();
+				Logger.log( " " );
+				Logger.log( "Reading: " + inputPath + "..." );
+				final ImagePlus inputImagePlus = openWithBioFormats( inputPath );
+
+				if ( inputImagePlus == null )
 				{
-					final String outputFilePathStump = outputDirectory + File.separator + file;
+					logService.error( "Error opening file: " + inputPath );
+					continue;
+				}
 
-					Utils.setNewLogFilePath( outputFilePathStump + ".log.txt" );
+				/**
+				 * Register
+				 */
 
-					/**
-					 * Open images
-					 */
+				RandomAccessibleInterval< T > registeredImages =
+						createAlignedImages( inputImagePlus, registration );
 
-					final String inputPath = inputDirectory + File.separator + file;
-					Logger.log( " " );
-					Logger.log( "Reading: " + inputPath + "..." );
-					final ImagePlus inputImagePlus = openWithBioFormats( inputPath );
+				if ( registeredImages == null )
+				{
+					Logger.log( "ERROR: Could not find central embryo" );
+					continue;
+				}
 
-					if ( inputImagePlus == null )
-					{
-						logService.error( "Error opening file: " + inputPath );
-						continue;
-					}
+				/**
+				 * Save registered images
+				 */
 
-					/**
-					 * Register
-					 */
-
-					RandomAccessibleInterval< T > registeredImages =
-							createAlignedImages( inputImagePlus, registration );
-
-					if ( registeredImages == null )
-					{
-						Logger.log( "ERROR: Could not find central embryo" );
-						continue;
-					}
-
-					/**
-					 * Save registered images
-					 */
-
-					saveResults( outputFilePathStump, registeredImages );
+				saveResults( outputFilePathStump, registeredImages );
 
 //					RandomAccessibleInterval< T > watershed = (RandomAccessibleInterval) registration.getWatershedLabelImg();
 //					new FileSaver( ImageJFunctions.wrap( watershed, "" ) ).saveAsTiff( outputFilePathStump + "-watershed.tif" );
@@ -173,9 +143,9 @@ public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > 
 //					RandomAccessibleInterval< T > channel2Image = getChannel2Image( getChannelImages( inputImagePlus ) );
 //					RandomAccessibleInterval ch2Maximum = new Projection( channel2Image, Z ).maximum();
 //					new FileSaver( ImageJFunctions.wrap( ch2Maximum, "" ) ).saveAsTiff( outputFilePathStump + "-projection-ch2-raw.tif" );
-				}
 			}
 		}
+
 		Logger.log( "Done!" );
 	}
 
@@ -335,4 +305,5 @@ public class FlyEmbryoSingleChannelRegistrationCommand< T extends RealType< T > 
 		settings.rollAngleComputationMethod = rollAngleAlignmentMethod;
 		settings.alignmentChannelIndexOneBased = alignmentChannelIndexOneBased;
 	}
+
 }

@@ -1,3 +1,5 @@
+package test;
+
 import de.embl.cba.flyreg.FlyEmbryoRegistrationSettings;
 import de.embl.cba.flyreg.FlyEmbryoSingleChannelRegistration;
 import de.embl.cba.morphometry.Logger;
