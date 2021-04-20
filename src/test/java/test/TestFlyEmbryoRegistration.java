@@ -35,7 +35,9 @@ import de.embl.cba.morphometry.Utils;
 import ij.ImagePlus;
 import loci.common.DebugTools;
 import net.imagej.ImageJ;
+import net.imagej.ops.DefaultOpService;
 import net.imagej.ops.OpService;
+import net.imagej.patcher.LegacyInjector;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -44,28 +46,33 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class TestFlyEmbryoRegistration< T extends RealType< T > & NativeType< T > >
+public class TestFlyEmbryoRegistration
 {
-	@Test
+	public static void main( String[] args )
+	{
+		final TestFlyEmbryoRegistration testFlyEmbryoRegistration = new TestFlyEmbryoRegistration();
+		testFlyEmbryoRegistration.test0();
+		testFlyEmbryoRegistration.test1();
+	}
+
+	//@Test
 	public void test0()
 	{
 		runRegistrationTest( "src/test/resources/test-data/low_res_x60_y55_z41_yaw-22.zip", new double[]{ 60.0, 55.0, 41.0 }, -22 );
-
 	}
 
-	@Test
+	//@Test
 	public void test1()
 	{
 		runRegistrationTest( "src/test/resources/test-data/low_res_x58_y69_z38_yaw-54.zip", new double[]{ 58.0, 69.0, 38.0 }, -54 );
 	}
 
-	public void runRegistrationTest( String filePath, double[] actualCentre, int actualAngle )
+	public static < T extends RealType< T > & NativeType< T > > void runRegistrationTest( String filePath, double[] actualCentre, int actualAngle )
 	{
 		final ImageJ ij = new ImageJ();
 		final OpService opService = ij.op();
 
 		DebugTools.setRootLevel("OFF"); // Bio-Formats
-
 		final ImagePlus imagePlus = Utils.openWithBioFormats( filePath );
 		final double[] calibration = Utils.getCalibration( imagePlus );
 		RandomAccessibleInterval< T > images = Utils.getChannelImages( imagePlus );
@@ -91,12 +98,12 @@ public class TestFlyEmbryoRegistration< T extends RealType< T > & NativeType< T 
 		assertEquals( angles[0], actualAngle, 5.0 );
 	}
 
-	public void logAngle( double angle )
+	public static void logAngle( double angle )
 	{
 		Logger.log( "Angle: " + angle );
 	}
 
-	public void logCentre( double[] centre )
+	public static void logCentre( double[] centre )
 	{
 		Logger.log( "Centre: " + centre[ 0 ] + ", " + centre[ 1 ] + ", " + centre[ 2 ] );
 	}
