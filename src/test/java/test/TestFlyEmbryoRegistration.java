@@ -1,7 +1,7 @@
 package test;
 
 import de.embl.cba.flyreg.FlyEmbryoRegistrationSettings;
-import de.embl.cba.flyreg.FlyEmbryoSingleChannelRegistration;
+import de.embl.cba.flyreg.FlyEmbryoNerveCordRegistration;
 import de.embl.cba.morphometry.Logger;
 import de.embl.cba.morphometry.Utils;
 import ij.ImagePlus;
@@ -47,7 +47,7 @@ public class TestFlyEmbryoRegistration< T extends RealType< T > & NativeType< T 
 
 		settings.onlyComputeEllipsoidParameters = true;
 
-		final FlyEmbryoSingleChannelRegistration registration = new FlyEmbryoSingleChannelRegistration( settings, opService );
+		final FlyEmbryoNerveCordRegistration registration = new FlyEmbryoNerveCordRegistration( settings, opService );
 
 		registration.run( image, calibration );
 

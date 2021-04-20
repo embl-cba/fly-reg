@@ -9,7 +9,6 @@ import de.embl.cba.transforms.utils.Transforms;
 import ij.ImagePlus;
 import ij.io.FileSaver;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -81,7 +80,7 @@ public class FlyEmbryoNerveCordRegistrationCommand< T extends RealType< T > & Na
 	{
 		setSettingsFromUI();
 
-		final FlyEmbryoSingleChannelRegistration registration = new FlyEmbryoSingleChannelRegistration( settings, opService );
+		final FlyEmbryoNerveCordRegistration registration = new FlyEmbryoNerveCordRegistration( settings, opService );
 
 		for( File file : files )
 		{
@@ -230,7 +229,7 @@ public class FlyEmbryoNerveCordRegistrationCommand< T extends RealType< T > & Na
 		return projections;
 	}
 
-	public RandomAccessibleInterval< T > createAlignedImages( ImagePlus imagePlus, FlyEmbryoSingleChannelRegistration registration )
+	public RandomAccessibleInterval< T > createAlignedImages( ImagePlus imagePlus, FlyEmbryoNerveCordRegistration registration )
 	{
 		final double[] inputCalibration = Utils.getCalibration( imagePlus );
 		RandomAccessibleInterval< T > images = Utils.getChannelImages( imagePlus );

@@ -39,7 +39,7 @@ import static de.embl.cba.transforms.utils.Scalings.createRescaledArrayImg;
 import static de.embl.cba.transforms.utils.Transforms.getScalingFactors;
 import static java.lang.Math.toRadians;
 
-public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & NativeType< T > >
+public class FlyEmbryoNerveCordRegistration< T extends RealType< T > & NativeType< T > >
 {
 	final FlyEmbryoRegistrationSettings settings;
 	final OpService opService;
@@ -61,7 +61,7 @@ public class FlyEmbryoSingleChannelRegistration< T extends RealType< T > & Nativ
 	private EllipsoidMLJ ellipsoidParameters;
 	private double[] inputCalibration;
 
-	public FlyEmbryoSingleChannelRegistration( final FlyEmbryoRegistrationSettings settings, final OpService opService )
+	public FlyEmbryoNerveCordRegistration( final FlyEmbryoRegistrationSettings settings, final OpService opService )
 	{
 		this.settings = settings;
 		this.opService = opService;
