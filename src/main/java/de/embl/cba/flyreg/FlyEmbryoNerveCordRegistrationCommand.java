@@ -1,3 +1,31 @@
+/*-
+ * #%L
+ * Fiji plugin for automated 3d spindle morphometry
+ * %%
+ * Copyright (C) 2018 - 2021 EMBL
+ * %%
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
 package de.embl.cba.flyreg;
 
 import de.embl.cba.abberation.RefractiveIndexMismatchCorrectionSettings;
@@ -9,7 +37,6 @@ import de.embl.cba.transforms.utils.Transforms;
 import ij.ImagePlus;
 import ij.io.FileSaver;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -81,7 +108,7 @@ public class FlyEmbryoNerveCordRegistrationCommand< T extends RealType< T > & Na
 	{
 		setSettingsFromUI();
 
-		final FlyEmbryoSingleChannelRegistration registration = new FlyEmbryoSingleChannelRegistration( settings, opService );
+		final FlyEmbryoNerveCordRegistration registration = new FlyEmbryoNerveCordRegistration( settings, opService );
 
 		for( File file : files )
 		{
@@ -230,7 +257,7 @@ public class FlyEmbryoNerveCordRegistrationCommand< T extends RealType< T > & Na
 		return projections;
 	}
 
-	public RandomAccessibleInterval< T > createAlignedImages( ImagePlus imagePlus, FlyEmbryoSingleChannelRegistration registration )
+	public RandomAccessibleInterval< T > createAlignedImages( ImagePlus imagePlus, FlyEmbryoNerveCordRegistration registration )
 	{
 		final double[] inputCalibration = Utils.getCalibration( imagePlus );
 		RandomAccessibleInterval< T > images = Utils.getChannelImages( imagePlus );
