@@ -10,7 +10,7 @@
 
 	<groupId>de.embl.cba</groupId>
 	<artifactId>fly-reg</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.2</version>
 
 	<name>fly-reg</name>
 	<description>Fiji plugin for automated 3d spindle morphometry</description>
@@ -56,7 +56,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/tischi/fly-reg</connection>
 		<developerConnection>scm:git:git@github.com/tischi/fly-reg</developerConnection>
-		<tag>fly-reg-0.1.1</tag>
+		<tag>fly-reg-0.1.2</tag>
 		<url>https://github.com/tischi/fly-reg</url>
 	</scm>
 	<issueManagement>
