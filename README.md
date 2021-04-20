@@ -1,3 +1,5 @@
+[![](https://travis-ci.com/tischi/fly-reg.svg?branch=master)](https://travis-ci.com/tischi/fly-reg)
+
 # FlyReg
 
 ![image](https://user-images.githubusercontent.com/2157566/101806447-43ee2f80-3b14-11eb-8212-45ff4059c12e.png)

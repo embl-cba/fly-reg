@@ -65,7 +65,8 @@
 	</issueManagement>
 	
 	<ciManagement>
-		<system>None</system>
+		<system>Travis CI</system>
+		<url>https://travis-ci.com/tischi/fly-reg</url>
 	</ciManagement>
 
 	<properties>
@@ -74,6 +75,9 @@
 		<license.copyrightOwners>EMBL</license.copyrightOwners>
 		<scijava.app.directory>/Users/tischer/Desktop/Fiji-FlyReg.app</scijava.app.directory>
 		<enforcer.skip>true</enforcer.skip>
+
+		<!-- NB: Deploy releases to the SciJava Maven repository. -->
+		<releaseProfiles>deploy-to-scijava</releaseProfiles>
 	</properties>
 
 
