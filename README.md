@@ -13,3 +13,7 @@ A Fiji plugin for the automated 3D registration of fly (drosophila) embryos.
 - Start Fiji
   - Install the `FlyReg` update site in Fiji: [ Help > Update > Manage Update Sites ]
 - Restart Fiji
+
+## Fiji Update Site
+
+https://sites.imagej.net/FlyReg/
