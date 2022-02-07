@@ -10,7 +10,7 @@
 
 	<groupId>de.embl.cba</groupId>
 	<artifactId>fly-reg</artifactId>
-	<version>0.1.3</version>
+	<version>0.1.4</version>
 
 	<!-- mvn clean install -Dscijava.app.directory=/Users/tischer/Desktop/Fiji/Fiji-FlyReg.app -->
 
