@@ -286,7 +286,6 @@ public class FlyEmbryoNerveCordRegistration< T extends RealType< T > & NativeTyp
 
 	private boolean segmentEmbryo()
 	{
-
 		createMask();
 
 		final RandomAccessibleInterval< DoubleType > distances = distanceTransform();
