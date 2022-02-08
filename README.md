@@ -6,6 +6,13 @@
 
 A Fiji plugin for the automated 3D registration of fly (drosophila) embryos.
 
+## Publications
+
+- [Fuqua et al. (2020) Dense and pleiotropic regulatory information in a developmental enhancer, Nature](
+https://pubmed.ncbi.nlm.nih.gov/33057197/)
+- [Fuqua et al. (2021) An open-source semi-automated robotics pipeline for embryo immunohistochemistry, Sci. Rep.](https://pubmed.ncbi.nlm.nih.gov/33986394/)
+
+
 ## Install
 
 - Download [Fiji](https://fiji.sc/)
